@@ -1,0 +1,18 @@
+name: Decompile client
+on: workflow_dispatch
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: wget -q https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
+      - run: java -jar apktool.jar d -f -o out client.apk
+      - run: |
+          cd out
+          grep -rlE "server_host|feature/game/GameActivity|th1nk\.top|SA-MP-Android" smali* > list.txt || true
+          echo AndroidManifest.xml >> list.txt
+          zip -q ../client_smali2.zip -@ < list.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-smali2
+          path: client_smali2.zip
